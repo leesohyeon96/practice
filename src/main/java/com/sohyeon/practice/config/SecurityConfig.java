@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -17,16 +19,17 @@ public class SecurityConfig {
     // 1-1. HttpSecurity, SecurityFilterChain 구현 필요
     @Bean // Bean 으로 등록 완료
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
+        http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+                .httpBasic(withDefaults());
 
         return http.build();
     }
 
-    // TODO anyMatchers 에러나는 이유 알아보기
+    // anyMatchers 에러나는 이유 알아보기
+    // -> anyMatchers 는 spring security 6.0에서 Deprecated 될 예정이기 때문에 사용할 수 없음
+    //    대신 requestMatchers 사용 가능
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring().antMatchers("/assets/**", "/h2-console/**","/api/hello2"));
-        return null;
+        return (web) -> web.ignoring().requestMatchers("/ignore1", "/ignore2");
     }
 }
