@@ -1,5 +1,6 @@
 package com.sohyeon.practice.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +17,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
     // Spring Security 5.7.0 이후로 WebSecurityConfigurerAdapter 지원 안함(Deprecated)
     // 1. 대신 Bean 을 생성하여 구성하는 기능 도입
@@ -33,6 +35,12 @@ public class SecurityConfig {
                 .passwordParameter("userPwd")
                 .loginProcessingUrl("/login");
 
+        // TODO - csrf(크로스 사이트 요청 위조) 설정
+        http.csrf().disable();
+
+        // TODO - logout 설정
+        http.logout();
+
         return http.build();
     }
 
@@ -46,7 +54,7 @@ public class SecurityConfig {
     }
 
     // user, admin 아이디인 경우?
-    // TODO 뭔지 알아보기
+    // TODO - 뭔지 알아보기
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
         UserDetails user = User.builder()
@@ -64,6 +72,7 @@ public class SecurityConfig {
     }
 
     // 암호 인코딩
+    // Springboot 2.0부터 반드시 지정해야 함
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
