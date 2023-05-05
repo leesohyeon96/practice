@@ -9,6 +9,6 @@ public class MemberController {
 
     @GetMapping("/")
     public String main(Model model) {
-        return "/login";
+        return "/member/login";
     }
 }
