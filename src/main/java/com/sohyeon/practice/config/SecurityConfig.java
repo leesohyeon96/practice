@@ -1,17 +1,26 @@
 package com.sohyeon.practice.config;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+import java.io.IOException;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -23,17 +32,39 @@ public class SecurityConfig {
     // 1. 대신 Bean 을 생성하여 구성하는 기능 도입
 
     // 1-1. HttpSecurity, SecurityFilterChain 구현 필요
+    // https://velog.io/@seongwon97/Spring-Security-Form-Login 참고
     @Bean // Bean 으로 등록 완료
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
                 .httpBasic(withDefaults());
 
         http.formLogin()
-                .loginPage("/member/login")
+                .loginPage("/login")
                 .defaultSuccessUrl("/")
+                .failureUrl("/login")
                 .usernameParameter("userId")
                 .passwordParameter("userPwd")
-                .loginProcessingUrl("/login");
+                .loginProcessingUrl("/login")
+                .successHandler(
+                        new AuthenticationSuccessHandler() {
+                            @Override
+                            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                                System.out.println("authentication : " + authentication.getName());
+                                response.sendRedirect("/"); // 인증이 성공한 후에는 root로 이동
+                            }
+                        }
+                )
+                .failureHandler(
+                        new AuthenticationFailureHandler() {
+                            @Override
+                            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+                                System.out.println("exception : " + exception.getMessage());
+                                response.sendRedirect("/login");
+                            }
+                        }
+                )
+                .permitAll();
+
 
         // TODO - csrf(크로스 사이트 요청 위조) 설정
         http.csrf().disable();
