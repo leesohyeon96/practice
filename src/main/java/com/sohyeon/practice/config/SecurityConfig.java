@@ -1,26 +1,17 @@
 package com.sohyeon.practice.config;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import java.io.IOException;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -39,28 +30,22 @@ public class SecurityConfig {
                 .httpBasic(withDefaults());
 
         http.formLogin()
-                .loginPage("/login")
+                .loginPage("/login")                    // localhost:8080 으로 접근햇을 때 이 url 을 따라감
                 .defaultSuccessUrl("/")
                 .failureUrl("/login")
                 .usernameParameter("userId")
                 .passwordParameter("userPwd")
                 .loginProcessingUrl("/login")
                 .successHandler(
-                        new AuthenticationSuccessHandler() {
-                            @Override
-                            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                                System.out.println("authentication : " + authentication.getName());
-                                response.sendRedirect("/"); // 인증이 성공한 후에는 root로 이동
-                            }
+                        (request, response, authentication) -> {
+                            System.out.println("authentication : " + authentication.getName());
+                            response.sendRedirect("/"); // 인증이 성공한 후에는 root 로 이동
                         }
                 )
                 .failureHandler(
-                        new AuthenticationFailureHandler() {
-                            @Override
-                            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                                System.out.println("exception : " + exception.getMessage());
-                                response.sendRedirect("/login");
-                            }
+                        (request, response, exception) -> {
+                            System.out.println("exception : " + exception.getMessage());
+                            response.sendRedirect("/login");
                         }
                 )
                 .permitAll();
