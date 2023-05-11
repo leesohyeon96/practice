@@ -18,6 +18,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @Slf4j
+// https://jiurinie.tistory.com/70 참고
 public class SecurityConfig {
     // Spring Security 5.7.0 이후로 WebSecurityConfigurerAdapter 지원 안함(Deprecated)
     // 1. 대신 Bean 을 생성하여 구성하는 기능 도입
