@@ -19,31 +19,32 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableWebSecurity
 @Slf4j
-// https://jiurinie.tistory.com/70 참고
+// https://reflectoring.io/spring-security/ 참고
+// https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html
+// https://nahwasa.com/entry/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8-30%EC%9D%B4%EC%83%81-Spring-Security-%EA%B8%B0%EB%B3%B8-%EC%84%B8%ED%8C%85-%EC%8A%A4%ED%94%84%EB%A7%81-%EC%8B%9C%ED%81%90%EB%A6%AC%ED%8B%B0
 public class SecurityConfig {
-    // Spring Security 5.7.0 이후로 WebSecurityConfigurerAdapter 지원 안함(Deprecated)
-    // 1. 대신 Bean 을 생성하여 구성하는 기능 도입
+    /*  Spring Security 5.7.0 이후로 WebSecurityConfigurerAdapter 지원 안함(Deprecated)
+        -> 대신 Bean 을 생성하여 구성하는 기능 도입 */
 
-    // 1-1. HttpSecurity, SecurityFilterChain 구현 필요
-    // https://velog.io/@seongwon97/Spring-Security-Form-Login 참고
-    @Bean // Bean 으로 등록 완료
+    /* 1. HttpSecurity, SecurityFilterChain 구현 필요 */
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
-        // authorizeHttpRequests -> permitall 사용할 경우 권한은 검증X && 요청을 보호할 수 있어 권장됨
+        /* authorizeHttpRequests -> permitall 사용할 경우 권한은 검증X && 요청을 보호할 수 있어 권장됨 */
 
         // TODO - csrf(크로스 사이트 요청 위조) 설정
-        // 1. 연습때만 disabled -> 상용일 경우 csrf 공격에 취약
+        /* 1. 연습때만 disabled -> 상용일 경우 csrf 공격에 취약 */
         http.cors().and().csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/login").permitAll()
+                .requestMatchers("/login", "/", "").permitAll()
                 .anyRequest().authenticated()
             .and()
-//                .formLogin().disable() //spring security 에서 제공하는 기본 로그인 페이지가 노출되지 않고 바로 접근이 가능!
+            /* spring security 에서 제공하는 기본 로그인 페이지가 노출되지 않고 바로 접근이 가능! */
+            //  .formLogin().disable()
                 .formLogin()
-                .loginPage("/login")
+                .loginPage("/login").permitAll()
 //                .loginProcessingUrl() // 뭐징
-//                .usernameParameter("id")
-//                .passwordParameter("pw")
+//                .usernameParameter("admin")
+//                .passwordParameter("password26")
                 .defaultSuccessUrl("/")
                 .failureForwardUrl("/login")
                 .permitAll()
@@ -80,23 +81,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    // user, admin 아이디인 경우?
-    // TODO - 뭔지 알아보기
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.builder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password("password")
-                .roles("USER", "ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
-    }
-
 }
+

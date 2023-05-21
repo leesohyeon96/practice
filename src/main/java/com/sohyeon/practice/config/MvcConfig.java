@@ -19,12 +19,12 @@ public class MvcConfig implements WebMvcConfigurer {
 
     // 1. addResourceHandle("/**") : 모든 리소스 허용
     // 2. addResourceLocations("class:/templates/") : 리소스 위치 설정
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/img/**")
-                .addResourceLocations("classpath:/templates/")
-//                .setCachePeriod(20);
-                .setCacheControl(CacheControl.noCache());
-    }
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/img/**")
+//                .addResourceLocations("classpath:/templates/")
+////                .setCachePeriod(20);
+//                .setCacheControl(CacheControl.noCache());
+//    }
 
 }
