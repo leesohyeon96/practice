@@ -1,5 +1,6 @@
 package com.sohyeon.practice.config;
 
+import jakarta.servlet.DispatcherType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 
 @Configuration
@@ -33,33 +36,51 @@ public class SecurityConfig {
 
         // TODO - csrf(크로스 사이트 요청 위조) 설정
         /* 1. 연습때만 disabled -> 상용일 경우 csrf 공격에 취약 */
-        http.cors().and().csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/login", "/", "").permitAll()
-                .anyRequest().authenticated()
-            .and()
-            /* spring security 에서 제공하는 기본 로그인 페이지가 노출되지 않고 바로 접근이 가능! */
-            //  .formLogin().disable()
-                .formLogin()
-                .loginPage("/login").permitAll()
-//                .loginProcessingUrl() // 뭐징
-//                .usernameParameter("admin")
-//                .passwordParameter("password26")
-                .defaultSuccessUrl("/")
-                .failureForwardUrl("/login")
-                .permitAll()
-            .and()
-                // 1. 로그아웃 시 post 로 요청해야하며, 이 방식으로 요청 시 csrf 토큰도 같이 보냄
-                .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                //세션 공간을 찾기위한 키값! 을 함께 쿠키에 담아서 전달을 해줘야 (header에 달고 요청하면) session공간 찾아갈 수 있게 됨!
-                .deleteCookies("JSESSIONID")
-                .invalidateHttpSession(true)
-                .logoutSuccessUrl("/")
-            .and()
-                // .exceptionHandling()
-                // .accessDeniedPage("/error/denied");
-                .httpBasic().disable();
+        http.cors().disable().csrf().disable()
+                .authorizeHttpRequests(request -> request
+                        //   dispatcherTypeMatchers 부분의 설정은 
+                        //   스프링 부트 3.0부터 적용된 
+                        //   스프링 시큐리티 6.0 부터 forward 방식 페이지 이동에도 
+                        //   default로 인증이 걸리도록 변경되어서
+                        //   JSP나 타임리프 등 컨트롤러에서 화면 파일명을 리턴해 
+                        //   ViewResolver가 작동해 페이지 이동을 하는 경우 위처럼 설정을 추가하셔야 함
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                        .anyRequest().authenticated()	// 어떠한 요청이라도 인증필요
+                )
+                .formLogin(login -> login	// form 방식 로그인 사용
+                        .defaultSuccessUrl("/home", true)	// 성공 시 dashboard로
+                        .permitAll()	// 대시보드 이동이 막히면 안되므로 얘는 허용
+                )
+                .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
+
+
+
+//                .authorizeHttpRequests()
+//                .requestMatchers("/login", "/", "").permitAll()
+//                .anyRequest().authenticated()
+//            .and()
+//            /* spring security 에서 제공하는 기본 로그인 페이지가 노출되지 않고 바로 접근이 가능! */
+//            //  .formLogin().disable()
+//                .formLogin()
+//                .loginPage("/login").permitAll()
+////                .loginProcessingUrl() // 뭐징
+////                .usernameParameter("admin")
+////                .passwordParameter("password26")
+//                .defaultSuccessUrl("/")
+//                .failureForwardUrl("/login")
+//                .permitAll()
+//            .and()
+//                // 1. 로그아웃 시 post 로 요청해야하며, 이 방식으로 요청 시 csrf 토큰도 같이 보냄
+//                .logout()
+//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+//                //세션 공간을 찾기위한 키값! 을 함께 쿠키에 담아서 전달을 해줘야 (header에 달고 요청하면) session공간 찾아갈 수 있게 됨!
+//                .deleteCookies("JSESSIONID")
+//                .invalidateHttpSession(true)
+//                .logoutSuccessUrl("/")
+//            .and()
+//                // .exceptionHandling()
+//                // .accessDeniedPage("/error/denied");
+//                .httpBasic().disable();
 
         return http.build();
     }
