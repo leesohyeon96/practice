@@ -4,17 +4,12 @@ import jakarta.servlet.DispatcherType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -22,8 +17,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @Slf4j
-// https://reflectoring.io/spring-security/ 참고
-// https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html
 // https://nahwasa.com/entry/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8-30%EC%9D%B4%EC%83%81-Spring-Security-%EA%B8%B0%EB%B3%B8-%EC%84%B8%ED%8C%85-%EC%8A%A4%ED%94%84%EB%A7%81-%EC%8B%9C%ED%81%90%EB%A6%AC%ED%8B%B0
 public class SecurityConfig {
     /*  Spring Security 5.7.0 이후로 WebSecurityConfigurerAdapter 지원 안함(Deprecated)
@@ -45,14 +38,25 @@ public class SecurityConfig {
                         //   JSP나 타임리프 등 컨트롤러에서 화면 파일명을 리턴해 
                         //   ViewResolver가 작동해 페이지 이동을 하는 경우 위처럼 설정을 추가하셔야 함
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                        .requestMatchers("/status", "/images/**", "/join").permitAll()
                         .anyRequest().authenticated()	// 어떠한 요청이라도 인증필요
                 )
                 .formLogin(login -> login	// form 방식 로그인 사용
-                        .defaultSuccessUrl("/home", true)	// 성공 시 dashboard로
-                        .permitAll()	// 대시보드 이동이 막히면 안되므로 얘는 허용
+                        .defaultSuccessUrl("/home", true)	// 성공 시 home으로
+                        .permitAll()	// 이동이 막히면 안되므로 얘는 허용
                 )
-                .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
 
+                /* 언젠가 login 커스텀 ㄱㄱ */
+//                .formLogin(login -> login
+//                        .loginPage("/login")	// [A] 커스텀 로그인 페이지 지정
+//                        .loginProcessingUrl("/login-process")	// [B] submit 받을 url
+//                        .usernameParameter("userid")	// [C] submit할 아이디
+//                        .passwordParameter("pw")	// [D] submit할 비밀번호
+//                        .defaultSuccessUrl("/home", true)
+//                        .permitAll()
+//                )
+
+                .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
 
 
 //                .authorizeHttpRequests()
