@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()	// 어떠한 요청이라도 인증필요
                 )
                 .formLogin(login -> login	// form 방식 로그인 사용
+                        .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/home", true)	// 성공 시 home으로
                         .permitAll()	// 이동이 막히면 안되므로 얘는 허용
                 )
