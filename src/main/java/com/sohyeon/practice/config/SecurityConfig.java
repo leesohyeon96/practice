@@ -7,8 +7,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -42,7 +46,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()	// 어떠한 요청이라도 인증필요
                 )
                 .formLogin(login -> login	// form 방식 로그인 사용
-                        .loginProcessingUrl("/login")
+//                        .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/home", true)	// 성공 시 home으로
                         .permitAll()	// 이동이 막히면 안되므로 얘는 허용
                 )
@@ -107,5 +111,21 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean //<-- 이 부분을 빼먹어서 '자격 증명에 실패하였습니다' 메세지를 찾는다고 고생. 주의!!!
+    public UserDetailsService userDetailsService() {
+        //인메모리에 username, password, role 설정
+        UserDetails user =
+                User.withDefaultPasswordEncoder()
+                        .username("user")
+                        .password("password26")
+                        .roles("USER")
+                        .build();
+
+        System.out.println("password : " + user.getPassword());
+
+        return new InMemoryUserDetailsManager(user);
+    }
+
 }
 
