@@ -6,4 +6,5 @@ public class MemberEntity {
     private String memberId;
     private String memberPwd;
     private String memberNm;
+    private String memberRole;
 }

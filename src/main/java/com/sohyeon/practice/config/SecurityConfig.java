@@ -112,13 +112,19 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean //<-- 이 부분을 빼먹어서 '자격 증명에 실패하였습니다' 메세지를 찾는다고 고생. 주의!!!
+    @Bean //<-- 이 부분을 빼먹어서 '자격 증명에 실패하였습니다'
     public UserDetailsService userDetailsService() {
+        // UserDetail -> spring security 에서 사용자의 정보를 담는 interface
         //인메모리에 username, password, role 설정
+        // 1. User vs UserDetail
+        //   - User : UserDetail을 구현해둔 객체(굳이 UserDetails를 구현한 객체를 직접 만들지 않을 때 사용하는 것)
+        //   - UserDetail : 핵심 사용자 정보를 제공하는 interface
+        //     (UserDetailService : 사용자별 데이터를 로드하는 핵심 interface
+        //                          + Spring Security에서 유저의 정보를 가져오는 interface)
         UserDetails user =
-                User.withDefaultPasswordEncoder()
+                User.builder()
                         .username("user")
-                        .password("password26")
+                        .password("password")
                         .roles("USER")
                         .build();
 
