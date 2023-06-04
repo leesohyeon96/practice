@@ -35,34 +35,41 @@ public class SecurityConfig {
         // TODO - csrf(크로스 사이트 요청 위조) 설정
         /* 1. 연습때만 disabled -> 상용일 경우 csrf 공격에 취약 */
         http.cors().disable().csrf().disable()
-                .authorizeHttpRequests(request -> request
-                        //   dispatcherTypeMatchers 부분의 설정은 
-                        //   스프링 부트 3.0부터 적용된 
-                        //   스프링 시큐리티 6.0 부터 forward 방식 페이지 이동에도 
-                        //   default로 인증이 걸리도록 변경되어서
-                        //   JSP나 타임리프 등 컨트롤러에서 화면 파일명을 리턴해 
-                        //   ViewResolver가 작동해 페이지 이동을 하는 경우 위처럼 설정을 추가하셔야 함
-                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        .requestMatchers("/status", "/images/**", "/join").permitAll()
-                        .anyRequest().authenticated()	// 어떠한 요청이라도 인증필요
-                )
-                .formLogin(login -> login	// form 방식 로그인 사용
-//                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/home", true)	// 성공 시 home으로
-                        .permitAll()	// 이동이 막히면 안되므로 얘는 허용
-                )
+                .authorizeHttpRequests(request -> {
+                    try {
+                        request
+                                //   dispatcherTypeMatchers 부분의 설정은
+                                //   스프링 부트 3.0부터 적용된
+                                //   스프링 시큐리티 6.0 부터 forward 방식 페이지 이동에도
+                                //   default로 인증이 걸리도록 변경되어서
+                                //   JSP나 타임리프 등 컨트롤러에서 화면 파일명을 리턴해
+                                //   ViewResolver가 작동해 페이지 이동을 하는 경우 위처럼 설정을 추가하셔야 함
+                                //  .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
-                /* 언젠가 login 커스텀 ㄱㄱ */
-//                .formLogin(login -> login
-//                        .loginPage("/login")	// [A] 커스텀 로그인 페이지 지정
-//                        .loginProcessingUrl("/login-process")	// [B] submit 받을 url
-//                        .usernameParameter("userid")	// [C] submit할 아이디
-//                        .passwordParameter("pw")	// [D] submit할 비밀번호
-//                        .defaultSuccessUrl("/home", true)
-//                        .permitAll()
-//                )
+                                .requestMatchers("/images/**", "/member/login/**").permitAll() // 인증 필요 없는 url
+                                .requestMatchers("/member/**") // 인증 필요한 url
+//                              .anyRequest().authenticated()	// 어떠한 요청이라도 인증필요
+                                .hasRole("MEMBER")             // MEMBER의 ROLE을 가진 경우만 인증 가능함
+                            .and()
+                                .formLogin()
+                                .loginPage("/member/login/loginForm")       // 로그인 페이지로 이동하는 url
+                                .loginProcessingUrl("/member/login/login")  // 로그인 처리 url
+                                .defaultSuccessUrl("/member/home")          // 로그인 성공 후 이동할 url
+                                .failureHandler(new MemberAuthFailureHandler())  // 로그인 실패 후 처리한 핸들러
+                                .permitAll()
+                            .and()
+                                .logout()
+                                .logoutUrl("/member/logout")
+                                .logoutSuccessUrl("/member/login/loginFOrm")    // 로그아웃 성공 후 이동 url
+                                .deleteCookies("JSESSIONID");     // 로그아웃 후 쿠키 삭제
+//                              .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
 
-                .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
+
+
+                    } catch (Exception e) {
+                                        throw  new RuntimeException(e);
+                    }
+                });
 
 
 //                .authorizeHttpRequests()

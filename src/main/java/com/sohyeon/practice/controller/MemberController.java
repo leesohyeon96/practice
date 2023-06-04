@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.lang.reflect.Member;
 
 @Controller
+@RequestMapping("/member")
 public class MemberController {
 
     private MemberService service;
@@ -27,4 +28,6 @@ public class MemberController {
         // modelAndView 로 RETURN하기
         return "login";
     }
+    
+    // /member/home 만들어야함
 }
