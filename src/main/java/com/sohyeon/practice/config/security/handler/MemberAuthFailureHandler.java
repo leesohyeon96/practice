@@ -1,4 +1,4 @@
-package com.sohyeon.practice.config;
+package com.sohyeon.practice.config.security.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

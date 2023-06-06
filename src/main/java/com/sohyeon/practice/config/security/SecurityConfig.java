@@ -1,7 +1,9 @@
-package com.sohyeon.practice.config;
+package com.sohyeon.practice.config.security;
 
-import jakarta.servlet.DispatcherType;
+import com.sohyeon.practice.config.security.handler.MemberAuthFailureHandler;
+import com.sohyeon.practice.config.security.auth.MemberDetailService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,8 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 
 @Configuration
 @EnableWebSecurity
@@ -24,6 +24,11 @@ import static org.springframework.security.config.Customizer.withDefaults;
 // https://nahwasa.com/entry/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8-30%EC%9D%B4%EC%83%81-Spring-Security-%EA%B8%B0%EB%B3%B8-%EC%84%B8%ED%8C%85-%EC%8A%A4%ED%94%84%EB%A7%81-%EC%8B%9C%ED%81%90%EB%A6%AC%ED%8B%B0
 // https://dev-log.tistory.com/4 (5.7.0 이후 github 보고 따라해보기..)
 public class SecurityConfig {
+    // 로그인 기억하기 사용을 위해 MemberAuthenticatorProvider 내부
+    // MemberDetailsService 선언
+    @Autowired
+    MemberDetailService memberDetailService;
+
     /*  Spring Security 5.7.0 이후로 WebSecurityConfigurerAdapter 지원 안함(Deprecated)
         -> 대신 Bean 을 생성하여 구성하는 기능 도입 */
 
@@ -63,13 +68,16 @@ public class SecurityConfig {
                                 .logoutSuccessUrl("/member/login/loginFOrm")    // 로그아웃 성공 후 이동 url
                                 .deleteCookies("JSESSIONID");     // 로그아웃 후 쿠키 삭제
 //                              .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
-
-
-
                     } catch (Exception e) {
                                         throw  new RuntimeException(e);
                     }
                 });
+
+        http.rememberMe()
+            .key("deeproot")                             // 인증 토큰 생성시 사용할 키
+                .tokenValiditySeconds(60 * 60 * 24 * 7)  // 인증 토큰 유효 시간 (초)
+                .userDetailsService(memberDetailService) // 인증 토큰 생성시에 사용할 UserDetailService
+                .rememberMeParameter("remembermepr");    // 로그인 페이지에서 사용할 파라미터 이름
 
 
 //                .authorizeHttpRequests()

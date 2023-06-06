@@ -1,4 +1,4 @@
-package com.sohyeon.practice.config;
+package com.sohyeon.practice.config.mvc;
 
 import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.*;
