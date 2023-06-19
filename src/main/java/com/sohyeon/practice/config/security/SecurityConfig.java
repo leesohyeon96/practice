@@ -2,6 +2,7 @@ package com.sohyeon.practice.config.security;
 
 import com.sohyeon.practice.config.security.handler.MemberAuthFailureHandler;
 import com.sohyeon.practice.config.security.auth.MemberDetailService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,13 +21,16 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor // 롬복을 사용하여 어노테이션으로 생성자 주입 코딩 가능 ㄷㄷ
 @Slf4j
 // https://nahwasa.com/entry/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8-30%EC%9D%B4%EC%83%81-Spring-Security-%EA%B8%B0%EB%B3%B8-%EC%84%B8%ED%8C%85-%EC%8A%A4%ED%94%84%EB%A7%81-%EC%8B%9C%ED%81%90%EB%A6%AC%ED%8B%B0
 // https://dev-log.tistory.com/4 (5.7.0 이후 github 보고 따라해보기..)
 public class SecurityConfig {
+
+
+
     // 로그인 기억하기 사용을 위해 MemberAuthenticatorProvider 내부
     // MemberDetailsService 선언
-    @Autowired
     MemberDetailService memberDetailService;
 
     /*  Spring Security 5.7.0 이후로 WebSecurityConfigurerAdapter 지원 안함(Deprecated)
@@ -69,7 +73,7 @@ public class SecurityConfig {
                                 .deleteCookies("JSESSIONID");     // 로그아웃 후 쿠키 삭제
 //                              .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
                     } catch (Exception e) {
-                                        throw  new RuntimeException(e);
+                        throw  new RuntimeException(e);
                     }
                 });
 
@@ -128,26 +132,26 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean //<-- 이 부분을 빼먹어서 '자격 증명에 실패하였습니다'
-    public UserDetailsService userDetailsService() {
-        // UserDetail -> spring security 에서 사용자의 정보를 담는 interface
-        //인메모리에 username, password, role 설정
-        // 1. User vs UserDetail
-        //   - User : UserDetail을 구현해둔 객체(굳이 UserDetails를 구현한 객체를 직접 만들지 않을 때 사용하는 것)
-        //   - UserDetail : 핵심 사용자 정보를 제공하는 interface
-        //     (UserDetailService : 사용자별 데이터를 로드하는 핵심 interface
-        //                          + Spring Security에서 유저의 정보를 가져오는 interface)
-        UserDetails user =
-                User.builder()
-                        .username("user")
-                        .password("password")
-                        .roles("USER")
-                        .build();
-
-        System.out.println("password : " + user.getPassword());
-
-        return new InMemoryUserDetailsManager(user);
-    }
+//    @Bean //<-- 이 부분을 빼먹어서 '자격 증명에 실패하였습니다'
+//    public UserDetailsService userDetailsService() {
+//        // UserDetail -> spring security 에서 사용자의 정보를 담는 interface
+//        //인메모리에 username, password, role 설정
+//        // 1. User vs UserDetail
+//        //   - User : UserDetail을 구현해둔 객체(굳이 UserDetails를 구현한 객체를 직접 만들지 않을 때 사용하는 것)
+//        //   - UserDetail : 핵심 사용자 정보를 제공하는 interface
+//        //     (UserDetailService : 사용자별 데이터를 로드하는 핵심 interface
+//        //                          + Spring Security에서 유저의 정보를 가져오는 interface)
+//        UserDetails user =
+//                User.builder()
+//                        .username("user")
+//                        .password("password")
+//                        .roles("USER")
+//                        .build();
+//
+//        System.out.println("password : " + user.getPassword());
+//
+//        return new InMemoryUserDetailsManager(user);
+//    }
 
 }
 

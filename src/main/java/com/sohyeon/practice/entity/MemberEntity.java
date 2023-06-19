@@ -38,4 +38,7 @@ public class MemberEntity {
 
     @Column(name = "UPD_DT")
     private LocalDateTime updDt;
+
+    @Column(name = "ENABLE")
+    private String enable;
 }
