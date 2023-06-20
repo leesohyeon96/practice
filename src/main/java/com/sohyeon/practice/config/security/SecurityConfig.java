@@ -2,6 +2,7 @@ package com.sohyeon.practice.config.security;
 
 import com.sohyeon.practice.config.security.handler.MemberAuthFailureHandler;
 import com.sohyeon.practice.config.security.auth.MemberDetailService;
+import com.sohyeon.practice.config.security.provider.MemberAuthenticatorProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -27,7 +23,8 @@ import org.springframework.security.web.SecurityFilterChain;
 // https://dev-log.tistory.com/4 (5.7.0 이후 github 보고 따라해보기..)
 public class SecurityConfig {
 
-
+    @Autowired
+    MemberAuthenticatorProvider memberAuthenticatorProvider;
 
     // 로그인 기억하기 사용을 위해 MemberAuthenticatorProvider 내부
     // MemberDetailsService 선언
@@ -69,7 +66,7 @@ public class SecurityConfig {
                             .and()
                                 .logout()
                                 .logoutUrl("/member/logout")
-                                .logoutSuccessUrl("/member/login/loginFOrm")    // 로그아웃 성공 후 이동 url
+                                .logoutSuccessUrl("/member/login/loginForm")    // 로그아웃 성공 후 이동 url
                                 .deleteCookies("JSESSIONID");     // 로그아웃 후 쿠키 삭제
 //                              .logout(withDefaults());	// 로그아웃은 기본설정으로 (/logout으로 인증해제)
                     } catch (Exception e) {
@@ -117,13 +114,13 @@ public class SecurityConfig {
     // Q: anyMatchers 에러나는 이유?
     // -> anyMatchers 는 spring security 6.0에서 Deprecated 될 예정이기 때문에 사용할 수 없음
     //    대신 requestMatchers 사용 가능
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        // security 에 걸리지 않을 url(요청)들 적기
-        // 정적자원에 대해서는 Security를 설정하지 않도록 함 (img, js 등 생기면 추가 필요)
-        return (web) -> web.ignoring().requestMatchers("/resource/**");
-
-    }
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        // security 에 걸리지 않을 url(요청)들 적기
+//        // 정적자원에 대해서는 Security를 설정하지 않도록 함 (img, js 등 생기면 추가 필요)
+//        return (web) -> web.ignoring().requestMatchers("/resource/**");
+//
+//    }
 
     // 암호 인코딩
     // Springboot 2.0부터 반드시 지정해야 함
