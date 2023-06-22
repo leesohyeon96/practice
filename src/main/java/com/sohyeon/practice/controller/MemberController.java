@@ -1,17 +1,17 @@
 package com.sohyeon.practice.controller;
 
+import com.sohyeon.practice.config.security.auth.MemberDetail;
 import com.sohyeon.practice.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.lang.reflect.Member;
 
 @Controller
 @RequestMapping("/member")
+
 public class MemberController {
 
     private MemberService service;
@@ -21,12 +21,16 @@ public class MemberController {
         this.service = service;
     }
 
-    @GetMapping("/login")
-    public String login(@ModelAttribute ModelAndView mv, Member member) {
-        service.login(member);
+    @GetMapping("/login/loginForm")
+    public String login(HttpServletRequest request,
+                        @AuthenticationPrincipal MemberDetail memberDetail) {
+        // AuthenticationPrincipal 이란?
+        //
 
-        // modelAndView 로 RETURN하기
-        return "login";
+
+
+
+        return "login/login";
     }
     
     // /member/home 만들어야함
