@@ -1,0 +1,17 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    command: --lower_case_table_names=1
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: practice
+      MARIADB_USER: sohyeon
+      MARIADB_PASSWORD: greedy
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  mariadb_data:

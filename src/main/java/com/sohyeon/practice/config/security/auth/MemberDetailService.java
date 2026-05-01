@@ -23,6 +23,7 @@ public class MemberDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 넘겨받은 id 로 DB 에서 회원 정보 찾음
         MemberEntity member = memberRepository.findByMemberId(username);
+        System.out.println("hmm : " + memberRepository.findAll());
 
         if(member == null) {
             throw new UsernameNotFoundException(username + "을 찾을 수 없습니다.");

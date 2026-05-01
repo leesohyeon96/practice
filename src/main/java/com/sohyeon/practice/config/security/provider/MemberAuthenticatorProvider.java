@@ -23,8 +23,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MemberAuthenticatorProvider implements AuthenticationProvider {
 
-    @Autowired
-    private MemberDetailService memberDetailService;
+    private final PasswordEncoder passwordEncoder;
+    private final MemberDetailService memberDetailService;
+
+    public MemberAuthenticatorProvider(PasswordEncoder passwordEncoder, MemberDetailService memberDetailService) {
+        this.passwordEncoder = passwordEncoder;
+        this.memberDetailService = memberDetailService;
+    }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -39,9 +44,8 @@ public class MemberAuthenticatorProvider implements AuthenticationProvider {
 
         // db에 저장된 password
         String dbPassword = memberDetail.getPassword();
-        // 암호화 방식(BCryptPasswordEncoder) 를 사용하여 비밀번호를 비교
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+        // 암호화 방식(BCryptPasswordEncoder) 를 사용하여 비밀번호를 비교
         if(!passwordEncoder.matches(password, dbPassword)) {
             log.debug("[시스템] 비밀번호가 일치하지 않습니다.");
             throw new BadCredentialsException("[시스템] 비밀번호가 일치하지 않습니다.");
